@@ -1,0 +1,86 @@
+{
+ "seasons": [
+  2010,
+  2011,
+  2012,
+  2013,
+  2015
+ ],
+ "events": 126,
+ "per_season": [
+  {
+   "year": 2010,
+   "events": 42,
+   "engine_pod_caution": 0.6904761904761905,
+   "v6_pod_caution": 0.7380952380952381
+  },
+  {
+   "year": 2011,
+   "events": 10,
+   "engine_pod_caution": 0.0,
+   "v6_pod_caution": 0.0
+  },
+  {
+   "year": 2012,
+   "events": 11,
+   "engine_pod_caution": 0.09090909090909091,
+   "v6_pod_caution": 0.45454545454545453
+  },
+  {
+   "year": 2013,
+   "events": 45,
+   "engine_pod_caution": 0.26666666666666666,
+   "v6_pod_caution": 0.5333333333333333
+  },
+  {
+   "year": 2015,
+   "events": 18,
+   "engine_pod_caution": 0.1111111111111111,
+   "v6_pod_caution": 0.5555555555555556
+  }
+ ],
+ "sources": {
+  "GLC": 94,
+  "COOLR": 156
+ },
+ "engine": {
+  "caution": {
+   "pod": 0.3492063492063492,
+   "alarm_rate": 0.08962157262633129
+  },
+  "avoid": {
+   "pod": 0.16666666666666666,
+   "alarm_rate": 0.019487876727849535
+  },
+  "pod_at_10pct": 0.36507936507936506,
+  "pod_at_25pct": 0.6904761904761905
+ },
+ "v6": {
+  "caution": {
+   "pod": 0.5555555555555556,
+   "alarm_rate": 0.3521791676108467
+  },
+  "avoid": {
+   "pod": 0.10317460317460317,
+   "alarm_rate": 0.07708286124329632
+  },
+  "pod_at_10pct": 0.12698412698412698,
+  "pod_at_25pct": 0.35714285714285715
+ },
+ "v6_ok": false,
+ "v6_features": [
+  "log_p24",
+  "log_p72",
+  "log_a7",
+  "log_a30",
+  "slope",
+  "log_hist",
+  "gsi_mean",
+  "gsi_high100",
+  "log_gsi_ls1k",
+  "sm0",
+  "sm1",
+  "sm2",
+  "log_r92"
+ ]
+}

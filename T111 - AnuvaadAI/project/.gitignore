@@ -1,0 +1,76 @@
+# Model weights and large AI binary assets
+*.onnx
+*.onnx.data
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.tflite
+*.gguf
+*.model
+*.ckpt
+models/
+en-indic-models/
+indic-en-models/
+santali-tts/
+checkpoints/
+
+# Android and Flutter Build Outputs
+build/
+**/build/
+.dart_tool/
+**/.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+*.apk
+*.aab
+*.exe
+*.msi
+*.class
+*.dex
+release_final/
+
+# Local backups and device extraction dumps
+backups/
+backups_*/
+device_audit/
+**/device_audit/
+phase2_3_testing/device_audit/
+*.bak
+*.pre_freeze
+
+# Python & Environment Caches
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.iml
+
+# Secrets and Signing Credentials
+*.jks
+*.keystore
+*.pem
+*.key
+*.p12
+.env
+.env.*
+!.env.example
+
+# Logs and runtime dumps
+*.log
+*.xml
+!**/AndroidManifest.xml
+!**/strings.xml
+!**/styles.xml
+!**/colors.xml
+!**/pom.xml

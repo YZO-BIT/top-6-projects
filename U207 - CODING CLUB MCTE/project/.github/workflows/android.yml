@@ -1,0 +1,70 @@
+name: android apk
+# Wraps the built single-file app in a small Android app (WebView, works with no network) and uploads the APK.
+# Sign with the team key by adding repository secrets ANDROID_KEYSTORE_B64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD;
+# without them the APK is signed with a throwaway debug key, so later builds cannot install over it.
+on:
+  push:
+    paths: ['android/**', 'index.html', '.github/workflows/android.yml']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.9'
+      - name: App page into the APK assets
+        run: mkdir -p android/app/src/main/assets && cp index.html android/app/src/main/assets/index.html
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Offline map tiles into the APK assets (z/x/y folders; WebViewAssetLoader cannot answer range requests)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release download tiles-latest -p basemap.pmtiles -p terrain.pmtiles -D tiles-src 2>/dev/null; then
+            pip install -q pmtiles==3.8.1
+            T=android/app/src/main/assets/tiles
+            python tools/tiles/to_xyz.py tiles-src/basemap.pmtiles $T/basemap pbf
+            python tools/tiles/to_xyz.py tiles-src/terrain.pmtiles $T/terrain png
+            python tools/tiles/manifest.py $T/tiles.json xyz "$(gh release view tiles-latest --json publishedAt -q .publishedAt | cut -c1-10)"
+            du -sh $T; find $T -type f | wc -l
+          else
+            echo 'no tiles-latest release yet: the APK ships without offline tiles (the map keeps its simple basemap)'
+          fi
+      - name: Build
+        env:
+          KS_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          VERSION_CODE: ${{ github.run_number }}
+        run: |
+          # secrets pasted from a chat or a document can carry a stray tab, space or newline
+          for v in KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do export "$v=$(printf '%s' "${!v}" | tr -d '[:space:]')"; done
+          if [ -n "$KS_B64" ]; then printf '%s' "$KS_B64" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/release.jks"; export KEYSTORE_FILE="$RUNNER_TEMP/release.jks"; fi
+          gradle -p android assembleRelease --no-daemon
+          cp android/app/build/outputs/apk/release/app-release.apk PahaadPath.apk
+          ls -l PahaadPath.apk
+          keytool -printcert -jarfile PahaadPath.apk | grep -E "Owner|SHA256:"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: PahaadPath-apk
+          path: PahaadPath.apk
+      - name: Publish as the latest Android release (main only), downloadable without a GitHub account
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view android-latest >/dev/null 2>&1 || gh release create android-latest --title 'PahaadPath for Android' --notes 'Install: open PahaadPath.apk on the phone and allow installing from this source. Works offline after install. Rebuilt on every change to main.' --latest
+          cp PahaadPath.apk PahaadPath-v2.apk
+          gh release upload android-latest PahaadPath.apk PahaadPath-v2.apk --clobber
